@@ -6,16 +6,16 @@ if (!gl) alert('Failed to get webgl')
 
 // 着色器源代码
 const VSHADER_SRC = `
-	void main() {
-		gl_Position 	= vec4(.0, .0, .0, 1.0);
-		gl_PointSize 	= 10.0;
-	}
+    void main() {
+        gl_Position     = vec4(.0, .0, .0, 1.0);
+        gl_PointSize     = 10.0;
+    }
 `
 
 const FSHADER_SRC = `
-	void main() {
-		gl_FragColor = vec4(.0, .0, 1.0, 1.0);
-	}
+    void main() {
+        gl_FragColor = vec4(.0, .0, 1.0, 1.0);
+    }
 `
 gl.clearColor(1.0, .0, .0, .2)
 gl.clear(gl.COLOR_BUFFER_BIT)
