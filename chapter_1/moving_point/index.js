@@ -62,7 +62,7 @@ canvas.addEventListener('mousemove', (e) => {
         pos, 
         e.offsetX / origin[0] - 1,
         1 - e.offsetY / origin[1],
-        0
+        .0
     )
     gl.clearColor(1.0, .0, .0, .2)
     gl.clear(gl.COLOR_BUFFER_BIT)
