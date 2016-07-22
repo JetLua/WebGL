@@ -8,14 +8,19 @@ if (!gl) alert('Failed to get webgl')
 // 着色器源代码
 const VSHADER_SRC = `
     attribute vec4 pos;
+    attribute vec4 color;
+    varying vec4 vColor;
     void main() {
         gl_Position     = pos;
         gl_PointSize    = 10.0;
+        vColor          = color;
     }
 `
 const FSHADER_SRC = `
+    precision highp float;
+    varying vec4 vColor;
     void main() {
-        gl_FragColor = vec4(.0, .0, 1.0, 1.0);
+        gl_FragColor = vColor;
     }
 `
 
@@ -47,14 +52,17 @@ gl.useProgram(program)
 // 获取attribute变量pos
 const pos = gl.getAttribLocation(program, 'pos')
 
-// 创建三角形顶点坐标
-const vertices = new Float32Array([
-    .0, .5, .0, 
-    .5, .0, .0,
-    -.5, .0, .0
+// 获取varying变量color
+const color = gl.getAttribLocation(program, 'color')
+
+// 创建三角形顶点坐标和颜色值
+const mixes = new Float32Array([
+    .0, .5, 1.0, .0, .0,
+    .5, .0, .0, 1.0, .0,
+    -.5, .0, .0, .0, 1.0
 ])
 
-const size = vertices.BYTES_PER_ELEMENT
+const size = mixes.BYTES_PER_ELEMENT
 
 // 创建缓冲区对象
 const buf = gl.createBuffer()
@@ -63,13 +71,21 @@ const buf = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, buf)
 
 // 将顶点坐标数据写入缓冲区
-gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+gl.bufferData(gl.ARRAY_BUFFER, mixes, gl.STATIC_DRAW)
 
-// 将缓冲区分配给attribute变量pos
-gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 3, 0)
+// 将缓冲区内的顶点数据分配给attribute变量pos
+gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 5, 0)
 
 // 开启attribute变量pos
 gl.enableVertexAttribArray(pos)
+
+// 将缓冲区内的颜色数据分配给attribute变量color
+gl.vertexAttribPointer(color, 3, gl.FLOAT, false, size * 5, size * 2)
+
+// 开启attribute变量color
+gl.enableVertexAttribArray(color)
+
+
 
 // 以指定颜色清空画布
 gl.clearColor(1.0, .0, .0, .2)
