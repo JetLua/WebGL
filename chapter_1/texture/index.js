@@ -98,7 +98,6 @@ const sampler = gl.getUniformLocation(program, 'sampler')
 const img = new Image
 
 img.onload = function() {
-
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, texture)
