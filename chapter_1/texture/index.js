@@ -8,19 +8,20 @@ if (!gl) alert('Failed to get webgl')
 // 着色器源代码
 const VSHADER_SRC = `
     attribute vec4 pos;
-    attribute vec4 color;
-    varying vec4 vColor;
+    attribute vec2 coord;
+    varying vec2 vCoord;
     void main() {
         gl_Position     = pos;
         gl_PointSize    = 10.0;
-        vColor          = color;
+        vCoord          = coord;
     }
 `
 const FSHADER_SRC = `
     precision highp float;
-    varying vec4 vColor;
+    uniform sampler2D sampler;
+    varying vec2 vCoord;
     void main() {
-        gl_FragColor = vColor;
+        gl_FragColor = texture2D(sampler, vCoord);
     }
 `
 
@@ -52,14 +53,16 @@ gl.useProgram(program)
 // 获取attribute变量pos
 const pos = gl.getAttribLocation(program, 'pos')
 
-// 获取attribute变量color
-const color = gl.getAttribLocation(program, 'color')
+// 获取attribute变量coord
+const coord = gl.getAttribLocation(program, 'coord')
 
 // 创建三角形顶点坐标和颜色值
 const mixes = new Float32Array([
-    .0, .5, 1.0, .0, .0,
-    .5, .0, .0, 1.0, .0,
-    -.5, .0, .0, .0, 1.0
+    -.5, .5, .0, 1.0,
+    -.5, -.5, .0, .0,
+    .5, .5, 1.0, 1.0,
+    .5, -.5, 1.0, 0,
+    
 ])
 
 const size = mixes.BYTES_PER_ELEMENT
@@ -70,26 +73,45 @@ const buf = gl.createBuffer()
 // 绑定缓冲区对象
 gl.bindBuffer(gl.ARRAY_BUFFER, buf)
 
-// 将顶点坐标和颜色数据写入缓冲区
+// 将顶点坐标数据写入缓冲区
 gl.bufferData(gl.ARRAY_BUFFER, mixes, gl.STATIC_DRAW)
 
 // 将缓冲区内的顶点数据分配给attribute变量pos
-gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 5, 0)
+gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 4, 0)
 
 // 开启attribute变量pos
 gl.enableVertexAttribArray(pos)
 
-// 将缓冲区内的颜色数据分配给attribute变量color
-gl.vertexAttribPointer(color, 3, gl.FLOAT, false, size * 5, size * 2)
+// 将缓冲区内的颜色数据分配给attribute变量coord
+gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, size * 4, size * 2)
 
-// 开启attribute变量color
-gl.enableVertexAttribArray(color)
+// 开启attribute变量coord
+gl.enableVertexAttribArray(coord)
+
+// 创建纹理对象
+const texture = gl.createTexture()
+
+// 获取uniform变量sampler
+const sampler = gl.getUniformLocation(program, 'sampler')
+
+// 创建image对象
+const img = new Image
+
+img.onload = function() {
+
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this)
+    gl.uniform1i(sampler, 0)
+    // 以指定颜色清空画布
+    gl.clearColor(1.0, .0, .0, .2)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    // 绘制点
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+}
+img.src = 'demo.jpeg'
 
 
-
-// 以指定颜色清空画布
-gl.clearColor(1.0, .0, .0, .2)
-gl.clear(gl.COLOR_BUFFER_BIT)
-
-// 绘制点
-gl.drawArrays(gl.TRIANGLES, 0, 3)
