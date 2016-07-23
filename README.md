@@ -10,3 +10,4 @@
 
 #### 第二章（三维世界）
   - [立方体](https://jetlua.github.io/WebGL/chapter_2/cube/)
+  - [可观察的立方体（鼠标滚轮和键盘↑↓←→）](https://jetlua.github.io/WebGL/chapter_2/view_cube/)

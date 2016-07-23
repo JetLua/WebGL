@@ -58,15 +58,16 @@ const vMatrix = mat4.create()
 mat4.perspective(pMatrix, Math.PI / 6, canvas.width / canvas.height, .1, 100)
 mat4.lookAt(
     vMatrix, 
-    [3, 3, 7],
+    [0, 3, 9],
     [0, 0, 0],
     [0, 1, 0]
 )
-const viewMatrix = mat4.create()
+let viewMatrix = mat4.create()
 mat4.mul(viewMatrix, pMatrix, vMatrix)
 
 // 获取uniform变量viewMatrix并赋值
-gl.uniformMatrix4fv(gl.getUniformLocation(program, 'viewMatrix'), false, viewMatrix)
+const uVMatrix = gl.getUniformLocation(program, 'viewMatrix')
+gl.uniformMatrix4fv(uVMatrix, false, viewMatrix)
 
 
 // 顶点坐标数组
@@ -143,3 +144,62 @@ gl.enable(gl.DEPTH_TEST)
 // 清空画布并绘制
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
+
+
+// 偏移角
+const angle = {
+    x: 0,
+    y: 0
+}
+
+const rad = {
+    x: 0,
+    y: 0
+}
+
+const xAxis = [1, 0, 0]
+const yAxis = [0, 1, 0]
+const zAxis = [0, 0, 1]
+const nZAxis = [0, 0, -1]
+
+
+document.addEventListener('keydown', (e) => {
+    angle.x = 0
+    angle.y = 0
+    switch (e.keyCode) {
+        // ←
+        case 37:
+            angle.x = -1
+            break
+        // ↑ 
+        case 38:
+            angle.y = -1
+            break
+        // →
+        case 39:
+            angle.x = 1
+            break
+        // ↓
+        case 40:
+            angle.y = 1
+            break
+        default:
+            break
+    }
+    rad.x = angle.x / 180 * Math.PI
+    rad.y = angle.y / 180 * Math.PI
+    mat4.rotate(viewMatrix, viewMatrix, rad.x, yAxis)
+    mat4.rotate(viewMatrix, viewMatrix, rad.y, xAxis)
+    gl.uniformMatrix4fv(uVMatrix, false, viewMatrix)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
+})
+
+document.addEventListener('wheel', (e) => {
+    // 小
+    if (e.deltaY > 0) mat4.translate(viewMatrix, viewMatrix, zAxis)
+    else mat4.translate(viewMatrix, viewMatrix, nZAxis)
+    gl.uniformMatrix4fv(uVMatrix, false, viewMatrix)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
+})
