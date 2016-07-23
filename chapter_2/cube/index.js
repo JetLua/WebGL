@@ -8,10 +8,11 @@ if (!gl) alert('Failed to get webgl')
 // 着色器源代码
 const VSHADER_SRC = `
     attribute vec4 pos;
+    uniform mat4 viewMatrix;
     attribute vec4 color;
     varying vec4 vColor;
     void main() {
-        gl_Position     = pos;
+        gl_Position     = viewMatrix * pos;
         vColor          = color;
     }
 `
@@ -19,12 +20,7 @@ const FSHADER_SRC = `
     precision highp float;
     varying vec4 vColor;
     void main() {
-        float dist = distance(gl_FragCoord, vec4(500.0, 250.0, .0, 1.0));
-        if (dist > 100.0) {
-            discard;
-        } else {
-            gl_FragColor = vColor;
-        }
+        gl_FragColor = vColor;
     }
 `
 
@@ -56,46 +52,94 @@ gl.linkProgram(program)
 // 使用程序
 gl.useProgram(program)
 
-// 获取attribute变量pos
-const pos = gl.getAttribLocation(program, 'pos')
+// 视图矩阵
+const pMatrix = mat4.create()
+const vMatrix = mat4.create()
+mat4.perspective(vMatrix, Math.PI / 6, canvas.width / canvas.height, .1, 100)
+mat4.lookAt(
+    pMatrix, 
+    [3, 3, 7],
+    [0, 0, 0],
+    [0, 1, 0]
+)
+const viewMatrix = mat4.create()
+mat4.mul(viewMatrix, vMatrix, pMatrix)
 
-// 获取attribute变量color
-const color = gl.getAttribLocation(program, 'color')
+// 获取uniform变量viewMatrix并赋值
+gl.uniformMatrix4fv(gl.getUniformLocation(program, 'viewMatrix'), false, viewMatrix)
 
-// 创建三角形顶点坐标和颜色值
+
+// 顶点坐标数组
 const mixes = new Float32Array([
-    -.5, .5, 1.0, .0, .0,
-    .5, .5, .0, 1.0, .0,
-    -.5, -.5, .0, .0, 1.0,
-    .5, -.5, 1.0, 1.0, 1.0,
+    //前
+    1.0, 1.0, 1.0, 0.0, 0.8, 0.0,
+    -1.0, 1.0, 1.0, 0.0, 0.8, 0.0,
+    -1.0, -1.0, 1.0, 0.0, 0.8, 0.0,
+    1.0, -1.0, 1.0, 0.0, 0.8, 0.0,
+    //后
+    1.0, 1.0, -1.0, 0.6, 0.9, 0.0,
+    -1.0, 1.0, -1.0, 0.6, 0.9, 0.0,
+    -1.0, -1.0, -1.0, 0.6, 0.9, 0.0,
+    1.0, -1.0, -1.0, 0.6, 0.9, 0.0,
+    //上
+    1.0, 1.0, -1.0, 1.0, 1.0, 0.0,
+    -1.0, 1.0, -1.0, 1.0, 1.0, 0.0,
+    -1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+    1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+    // 下
+    1.0, -1.0, -1.0, 1.0, 0.5, 0.0,
+    -1.0, -1.0, -1.0, 1.0, 0.5, 0.0,
+    -1.0, -1.0, 1.0, 1.0, 0.5, 0.0,
+    1.0, -1.0, 1.0, 1.0, 0.5, 0.0,
+    //右
+    1.0, 1.0, -1.0, 0.9, 0.0, 0.2,
+    1.0, 1.0, 1.0, 0.9, 0.0, 0.2,
+    1.0, -1.0, 1.0, 0.9, 0.0, 0.2,
+    1.0, -1.0, -1.0, 0.9, 0.0, 0.2,
+    //左
+    -1.0, 1.0, -1.0, 0.6, 0.0, 0.6,
+    -1.0, 1.0, 1.0, 0.6, 0.0, 0.6,
+    -1.0, -1.0, 1.0, 0.6, 0.0, 0.6,
+    -1.0, -1.0, -1.0, 0.6, 0.0, 0.6
 ])
 
-const size = mixes.BYTES_PER_ELEMENT
+// 顶点索引数据
+const indices = new Uint8Array([
+    0, 1, 2, 0, 2, 3,
+    4, 6, 5, 4, 7, 6,
+    8, 9, 10, 8, 10, 11,
+    12, 14, 13, 12, 15, 14,
+    16, 17, 18, 16, 18, 19,
+    20, 22, 21, 20, 23, 22
+])
 
-// 创建缓冲区对象
-const buf = gl.createBuffer()
+// 创建缓冲区
+const vBuf = gl.createBuffer()
+const iBuf = gl.createBuffer()
 
-// 绑定缓冲区对象
-gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-
-// 将顶点坐标和颜色数据写入缓冲区
+// 将顶点数据写入缓冲区
+gl.bindBuffer(gl.ARRAY_BUFFER, vBuf)
 gl.bufferData(gl.ARRAY_BUFFER, mixes, gl.STATIC_DRAW)
 
-// 将缓冲区内的顶点数据分配给attribute变量pos
-gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 5, 0)
-
-// 开启attribute变量pos
+// 分配缓冲区顶点数据给pos
+const pos = gl.getAttribLocation(program, 'pos')
+const size = mixes.BYTES_PER_ELEMENT
+gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, size * 6, 0)
 gl.enableVertexAttribArray(pos)
 
-// 将缓冲区内的颜色数据分配给attribute变量color
-gl.vertexAttribPointer(color, 3, gl.FLOAT, false, size * 5, size * 2)
-
-// 开启attribute变量color
+// 分配缓冲区颜色数据给color
+const color = gl.getAttribLocation(program, 'color')
+gl.vertexAttribPointer(color, 3, gl.FLOAT, false, size * 6, size * 3)
 gl.enableVertexAttribArray(color)
 
-// 以指定颜色清空画布
-gl.clearColor(1.0, .0, .0, .2)
-gl.clear(gl.COLOR_BUFFER_BIT)
+// 将索引数据写入缓冲区
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf)
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
 
-// 绘制点
-gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+// 指定画布背景并开启消除隐藏面
+gl.clearColor(1.0, .0, .0, .2)
+gl.enable(gl.DEPTH_TEST)
+
+// 清空画布并绘制
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
