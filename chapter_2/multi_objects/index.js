@@ -58,7 +58,7 @@ let vMatrix = mat4.create()
 mat4.perspective(pMatrix, Math.PI / 6, canvas.width / canvas.height, .1, 100)
 mat4.lookAt(
     vMatrix, 
-    [9, 9, 9],
+    [0, 10, 15],
     [0, 0, 0],
     [0, 1, 0]
 )
@@ -143,6 +143,11 @@ gl.enable(gl.DEPTH_TEST)
 
 // 清空画布并绘制
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
+
+// 第二个立方体
+mat4.translate(viewMatrix, viewMatrix, [4, 0, 0])
+gl.uniformMatrix4fv(uVMatrix, false, viewMatrix)
 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
 
 // 偏移角
