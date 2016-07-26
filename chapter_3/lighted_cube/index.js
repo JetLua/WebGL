@@ -35,7 +35,6 @@ const FSHADER_SRC = `
         gl_FragColor = vColor;
     }
 `
-
 // 视图大小
 gl.viewport(0, 0, 1000, 500)
 
@@ -139,7 +138,7 @@ const pMatrix = mat4.create()
 const vMatrix = mat4.create()
 mat4.perspective(pMatrix, Math.PI / 6, canvas.width / canvas.height, .1, 100)
 mat4.lookAt(
-    vMatrix, 
+    vMatrix,
     [3, 3, 7],
     [0, 0, 0],
     [0, 1, 0]
@@ -153,7 +152,7 @@ gl.uniformMatrix4fv(gl.getUniformLocation(program, 'viewMatrix'), false, viewMat
 // 设置光线颜色和方向
 const lightColor = gl.getUniformLocation(program, 'lightColor')
 const uLightDirection = gl.getUniformLocation(program, 'lightDirection')
-const ambient = gl.getUniformLocation(program, 'ambient')
+const ambient = gl.getUniformLocation(program, 'ambientLight')
 gl.uniform3f(lightColor, 1.0, 1.0, 1.0)
 gl.uniform3f(ambient, .2, .2, .2)
 
