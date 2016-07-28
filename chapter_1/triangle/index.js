@@ -49,7 +49,7 @@ const pos = gl.getAttribLocation(program, 'pos')
 
 // 创建三角形顶点坐标
 const vertices = new Float32Array([
-    .0, .5, .0, 
+    .0, .5, .0,
     .5, .0, .0,
     -.5, .0, .0
 ])
@@ -66,7 +66,7 @@ gl.bindBuffer(gl.ARRAY_BUFFER, buf)
 gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
 
 // 将缓冲区分配给attribute变量pos
-gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, size * 3, 0)
+gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0)
 
 // 开启attribute变量pos
 gl.enableVertexAttribArray(pos)
