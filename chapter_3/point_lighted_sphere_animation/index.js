@@ -161,7 +161,7 @@ gl.uniform3f(uAmbientLight, .2, .2, .2)
 
 // 点光源位置
 const uLightPosition = gl.getUniformLocation(program, 'uLightPosition')
-gl.uniform3f(uLightPosition, .0, 0.0, 6.0)
+gl.uniform3f(uLightPosition, .0, 6.0, 6.0)
 
 // 点光源颜色
 const uLightColor = gl.getUniformLocation(program, 'uLightColor')
@@ -190,7 +190,8 @@ let pMatrix = mat4.create()
 let vMatrix = mat4.create()
 let mMatrix = mat4.create()
 let nMatrix = mat4.create()
-let eye = [0, 2, 4]
+let eye = [0, 0, 4]
+let dEye = [0, 0, 4]
 let center = [0, 0, 0]
 let up = [0, 1, 0]
 
@@ -206,16 +207,9 @@ gl.uniformMatrix4fv(uModelMatrix, false, mMatrix)
 const uNormalMatrix = gl.getUniformLocation(program, 'uNormalMatrix')
 gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
 
-// 放缩
-const axis = {
-    y: [0, 1, 0],
-    z: [0, 0, 1],
-    mz: [0, 0, -1]
-}
-
 let tmp = vec3.create()
 let down = false
-let mouse = {
+const mouse = {
     start: {
         x: 0,
         y: 0
@@ -226,18 +220,56 @@ let mouse = {
     }
 }
 
+const dist = {
+    direction: null,
+    start: {
+        x: 0,
+        y: 0
+    },
+    end: {
+        x: 0,
+        y: 0
+    }
+}
+
+
+const angle = {
+    x: 0,
+    y: 0,
+    z: 0
+}
+
 document.addEventListener('mousemove', (e) => {
     e.preventDefault()
     e.stopPropagation()
     if (!down) return
-    if (e.pageX - mouse.start.x >= 0) {
-        mat4.rotate(mMatrix, mMatrix, -1, axis.y)
-        vec3.rotateY(eye, eye, center, 1)
-
-    } else {
-        mat4.rotate(mMatrix, mMatrix, 1, axis.y)
-        vec3.rotateY(eye, eye, center, -1)
+    if (!dist.direction) {
+        dist.start.x = Math.abs(e.pageX - mouse.start.x)
+        dist.start.y = Math.abs(e.pageY - mouse.start.y)
+        if (!(dist.start.x > 20 || dist.start.y > 20)) return
+        if (dist.start.x != dist.start.y) {
+            dist.start.x >= dist.start.y ? dist.direction = 'x' : dist.direction = 'y'
+        }
     }
+
+    dist.end.x   = e.pageX - mouse.end.x
+    dist.end.y   = e.pageY - mouse.end.y
+
+
+    if (dist.direction == 'x') {
+        if (dist.end.x >= 0)  angle.x = .01
+        else angle.x = -.01
+        vec3.rotateY(dEye, dEye, center, -angle.x)
+        mat4.rotateY(mMatrix, mMatrix, angle.x)
+    } else if (dist.direction == 'y') {
+        if (dist.end.y >= 0) angle.y = .01
+        else angle.y = -.01
+        vec3.rotateX(dEye, dEye, center, -angle.y)
+        mat4.rotateX(mMatrix, mMatrix, angle.y)
+    }
+
+
+
 
     mat4.mul(viewMatrix, pMatrix, vMatrix)
     mat4.mul(viewMatrix, viewMatrix, mMatrix)
@@ -248,8 +280,8 @@ document.addEventListener('mousemove', (e) => {
     gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.drawArrays(gl.LINES, 0, l)
-    mouse.start.x = e.pageX
-
+    mouse.end.x = e.pageX
+    mouse.end.y = e.pageY
 })
 
 
@@ -259,11 +291,8 @@ document.addEventListener('wheel', (e) => {
     e.preventDefault()
     e.stopPropagation()
     // 小
-    if (e.deltaY < 0) {
-        vec3.subtract(tmp, eye, center)
-    } else {
-        vec3.subtract(tmp, center, eye)
-    }
+    if (e.deltaY < 0) vec3.copy(tmp, dEye)
+    else vec3.negate(tmp, dEye)
     vec3.normalize(tmp, tmp)
     mat4.translate(mMatrix, mMatrix, tmp)
     mat4.mul(viewMatrix, pMatrix, vMatrix)
@@ -281,10 +310,14 @@ document.addEventListener('wheel', (e) => {
 canvas.addEventListener('mousedown', (e) => {
     mouse.start.x = e.pageX
     mouse.start.y = e.pageY
+    dist.direction = null
     down = true
 })
 
-document.addEventListener('mouseup', (e) => down = false)
+document.addEventListener('mouseup', (e) => {
+    down = false
+
+})
 
 // 绘制
 const aColor = gl.getAttribLocation(program, 'aColor')
