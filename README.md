@@ -16,3 +16,4 @@
 #### 第三章（光）
   - [光照下的立方体（平行光）](https://jetlua.github.io/WebGL/chapter_3/lighted_cube/)
   - [光照下的球体（点光源）](https://jetlua.github.io/WebGL/chapter_3/point_lighted_sphere/)
+  - [光照下的球体（鼠标操作）](https://jetlua.github.io/WebGL/chapter_3/point_lighted_sphere_animation/)
