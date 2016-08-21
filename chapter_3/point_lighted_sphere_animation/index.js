@@ -111,8 +111,11 @@ gl.useProgram(program)
 
 
 
-// 圆形轨迹
-let circleVertices = []
+// 球轨迹
+let sphereVertices = []
+
+// 法向量
+let normalVertices = []
 
 !function() {
     let m = n = 25
@@ -120,7 +123,7 @@ let circleVertices = []
     let l, r = 1
     for (a = 1; a <= n; a++) {
         for (b = 1; b <= m; b++) {
-            circleVertices.push(
+            sphereVertices.push(
                 ...v(a, b), ...v(a - 1, b),
                 ...v(a - 1, b), ...v(a - 1, b - 1),
                 ...v(a, b), ...v(a - 1, b + 1)
@@ -135,204 +138,136 @@ let circleVertices = []
     }
 }()
 
-let normalVertices = new Float32Array(circleVertices.slice(0))
-circleVertices = new Float32Array(circleVertices)
-const size = circleVertices.BYTES_PER_ELEMENT
-const l = circleVertices.length / 3
-// 创建顶点缓冲区
-const vBuf = gl.createBuffer()
+normalVertices = new Float32Array(sphereVertices.slice(0))
+sphereVertices = new Float32Array(sphereVertices)
 
-// 绑定缓冲区
-gl.bindBuffer(gl.ARRAY_BUFFER, vBuf)
+const size = sphereVertices.BYTES_PER_ELEMENT
+const nums = sphereVertices.length / 3
 
-// 将顶点数据写入缓冲区
-gl.bufferData(gl.ARRAY_BUFFER, circleVertices, gl.STATIC_DRAW)
+const uAmbientLight  = gl.getUniformLocation(program, 'uAmbientLight')
+const uLightPosition = gl.getUniformLocation(program, 'uLightPosition')
+const uLightColor    = gl.getUniformLocation(program, 'uLightColor')
+const aNormal        = gl.getAttribLocation(program, 'aNormal')
+const uViewMatrix    = gl.getUniformLocation(program, 'uViewMatrix')
+const uModelMatrix   = gl.getUniformLocation(program, 'uModelMatrix')
+const uNormalMatrix  = gl.getUniformLocation(program, 'uNormalMatrix')
+const aColor         = gl.getAttribLocation(program, 'aColor')
+const aPosition      = gl.getAttribLocation(program, 'aPosition')
 
-// 将缓冲区数据分配到变量aPosition
-const aPosition = gl.getAttribLocation(program, 'aPosition')
+
+
+// 顶点数据写入
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+gl.bufferData(gl.ARRAY_BUFFER, sphereVertices, gl.STATIC_DRAW)
 gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0)
 gl.enableVertexAttribArray(aPosition)
 
 
-
-// 环境光
-const uAmbientLight = gl.getUniformLocation(program, 'uAmbientLight')
+// 环境光颜色
 gl.uniform3f(uAmbientLight, .2, .2, .2)
 
 // 点光源位置
-const uLightPosition = gl.getUniformLocation(program, 'uLightPosition')
-gl.uniform3f(uLightPosition, .0, 6.0, 6.0)
+let lightPosition = vec3.clone([.0, 6.0, 6.0])
+gl.uniform3fv(uLightPosition, lightPosition)
 
 // 点光源颜色
-const uLightColor = gl.getUniformLocation(program, 'uLightColor')
 gl.uniform3f(uLightColor, .5, .5, .5)
 
-// 法向量
+// 法向量写入
 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
 gl.bufferData(gl.ARRAY_BUFFER, normalVertices, gl.STATIC_DRAW)
-const aNormal = gl.getAttribLocation(program, 'aNormal')
 gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0)
 gl.enableVertexAttribArray(aNormal)
 
 
-
-
-
-// gl.vertexAttrib4f(aColor, .24, .36, .60, .01)
-// // gl.blendFunc(gl.DST_ALPHA, gl.ONE)
-// // gl.disable(gl.BLEND)
-// gl.drawArrays(gl.TRIANGLES, 0, l)
-
-
-// 视图矩阵
-const uViewMatrix = gl.getUniformLocation(program, 'uViewMatrix')
+// 视图模型矩阵
+let mvpMatrix = mat4.create()
 let pMatrix = mat4.create()
 let vMatrix = mat4.create()
 let mMatrix = mat4.create()
 let nMatrix = mat4.create()
 let eye = [0, 0, 4]
-let dEye = [0, 0, 4]
 let center = [0, 0, 0]
 let up = [0, 1, 0]
 
-let viewMatrix = mat4.create()
+
 mat4.perspective(pMatrix, Math.PI / 6, canvas.width / canvas.height, .1, 100)
 mat4.lookAt(vMatrix, eye, center, up)
-mat4.mul(viewMatrix, pMatrix, vMatrix)
-gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix)
+mat4.mul(mvpMatrix, pMatrix, vMatrix)
 
-const uModelMatrix = gl.getUniformLocation(program, 'uModelMatrix')
-gl.uniformMatrix4fv(uModelMatrix, false, mMatrix)
-
-const uNormalMatrix = gl.getUniformLocation(program, 'uNormalMatrix')
-gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
-
-let tmp = vec3.create()
-let down = false
-const mouse = {
-    start: {
-        x: 0,
-        y: 0
-    },
-    end: {
-        x: 0,
-        y: 0
-    }
+// 绘制函数
+const draw = () => {
+    gl.uniform3fv(uLightPosition, lightPosition)
+    gl.uniformMatrix4fv(uViewMatrix, false, mvpMatrix)
+    gl.uniformMatrix4fv(uModelMatrix, false, mMatrix)
+    gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.drawArrays(gl.LINES, 0, nums)
 }
 
-const dist = {
-    direction: null,
-    start: {
-        x: 0,
-        y: 0
-    },
-    end: {
-        x: 0,
-        y: 0
-    }
-}
+// 开启混合 设置背景色
+gl.enable(gl.BLEND)
+gl.vertexAttrib4f(aColor, .3, .4, .5, .5)
+gl.clearColor(.24, .36, .50, 1.0)
+gl.blendFunc(gl.DST_ALPHA, gl.ONE)
 
+// 绘制
+draw()
 
+// 鼠标操作
 const angle = {
     x: 0,
     y: 0,
     z: 0
 }
+const axis = {
+    x: [1, 0, 0],
+    y: [0, 1, 0],
+    z: [0, 0, 1]
+}
+const jit = {
+    x: [],
+    y: [],
+    z: []
+}
+const mouse = {}
 
-document.addEventListener('mousemove', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+// 模拟栈
+const stack = []
+const push = o => stack.push(o)
+const pop = () => stack.pop()
+
+let down = false
+
+canvas.addEventListener('mousemove', e => {
     if (!down) return
-    if (!dist.direction) {
-        dist.start.x = Math.abs(e.pageX - mouse.start.x)
-        dist.start.y = Math.abs(e.pageY - mouse.start.y)
-        if (!(dist.start.x > 20 || dist.start.y > 20)) return
-        if (dist.start.x != dist.start.y) {
-            dist.start.x >= dist.start.y ? dist.direction = 'x' : dist.direction = 'y'
-        }
-    }
-
-    dist.end.x   = e.pageX - mouse.end.x
-    dist.end.y   = e.pageY - mouse.end.y
-
-
-    if (dist.direction == 'x') {
-        if (dist.end.x >= 0)  angle.x = .01
-        else angle.x = -.01
-        vec3.rotateY(dEye, dEye, center, -angle.x)
-        mat4.rotateY(mMatrix, mMatrix, angle.x)
-    } else if (dist.direction == 'y') {
-        if (dist.end.y >= 0) angle.y = .01
-        else angle.y = -.01
-        vec3.rotateX(dEye, dEye, center, -angle.y)
-        mat4.rotateX(mMatrix, mMatrix, angle.y)
-    }
-
-
-
-
-    mat4.mul(viewMatrix, pMatrix, vMatrix)
-    mat4.mul(viewMatrix, viewMatrix, mMatrix)
-    gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix)
-    gl.uniformMatrix4fv(uModelMatrix, false, mMatrix)
+    if (mouse.y - e.pageY >= 0) angle.y -= .01
+    else angle.y += .01
+    push(mat4.clone(vMatrix))
+    push(mat4.clone(mvpMatrix))
+    push(mat4.clone(mMatrix))
+    push(mat4.clone(nMatrix))
+    mat4.rotate(vMatrix, vMatrix, angle.y, axis.x)
+    mat4.mul(mvpMatrix, pMatrix, vMatrix)
+    mat4.rotate(mMatrix, mMatrix, angle.y, axis.x)
     mat4.invert(nMatrix, mMatrix)
     mat4.transpose(nMatrix, nMatrix)
-    gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    gl.drawArrays(gl.LINES, 0, l)
-    mouse.end.x = e.pageX
-    mouse.end.y = e.pageY
+    draw()
+    nMatrix = pop()
+    mMatrix = pop()
+    mvpMatrix = pop()
+    vMatrix = pop()
+    mouse.y = e.pageY
 })
 
-
-
-
-document.addEventListener('wheel', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // 小
-    if (e.deltaY < 0) vec3.copy(tmp, dEye)
-    else vec3.negate(tmp, dEye)
-    vec3.normalize(tmp, tmp)
-    mat4.translate(mMatrix, mMatrix, tmp)
-    mat4.mul(viewMatrix, pMatrix, vMatrix)
-    mat4.mul(viewMatrix, viewMatrix, mMatrix)
-    gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix)
-    gl.uniformMatrix4fv(uModelMatrix, false, mMatrix)
-    mat4.invert(nMatrix, mMatrix)
-    mat4.transpose(nMatrix, nMatrix)
-    gl.uniformMatrix4fv(uNormalMatrix, false, nMatrix)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    gl.drawArrays(gl.LINES, 0, l)
-})
-
-
-canvas.addEventListener('mousedown', (e) => {
-    mouse.start.x = e.pageX
-    mouse.start.y = e.pageY
-    dist.direction = null
+canvas.addEventListener('mousedown', e => {
     down = true
+    mouse.x = e.pageX
+    mouse.y = e.pageY
 })
 
-document.addEventListener('mouseup', (e) => {
+document.addEventListener('mouseup', e => {
     down = false
-
 })
-
-// 绘制
-const aColor = gl.getAttribLocation(program, 'aColor')
-gl.enable(gl.BLEND)
-gl.vertexAttrib4f(aColor, .3, .4, .5, .5)
-gl.clearColor(.24, .36, .50, 1.0)
-gl.blendFunc(gl.DST_ALPHA, gl.ONE)
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-gl.drawArrays(gl.LINES, 0, l)
-
-
-
-
-
-
-
 
 
