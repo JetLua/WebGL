@@ -215,21 +215,12 @@ gl.blendFunc(gl.DST_ALPHA, gl.ONE)
 draw()
 
 // 鼠标操作
-const angle = {
-    x: 0,
-    y: 0,
-    z: 0
-}
 const axis = {
     x: [1, 0, 0],
     y: [0, 1, 0],
     z: [0, 0, 1]
 }
-const jit = {
-    x: [],
-    y: [],
-    z: []
-}
+
 const mouse = {}
 
 // 模拟栈
@@ -239,24 +230,25 @@ const pop = () => stack.pop()
 
 let down = false
 
+const degToRad = degrees => degrees * Math.PI / 1800
+
 canvas.addEventListener('mousemove', e => {
     if (!down) return
-    if (mouse.y - e.pageY >= 0) angle.y -= .01
-    else angle.y += .01
+    mouse.deltaX = e.pageX - mouse.x
+    mouse.deltaY = e.pageY - mouse.y
+    const rMatrix = mat4.create()
+    mat4.identity(rMatrix)
+    mat4.rotate(rMatrix, rMatrix, degToRad(mouse.deltaX), axis.y)
+    mat4.rotate(rMatrix, rMatrix, degToRad(mouse.deltaY), axis.x)
+    mat4.mul(mMatrix, rMatrix, mMatrix)
     push(mat4.clone(vMatrix))
-    push(mat4.clone(mvpMatrix))
-    push(mat4.clone(mMatrix))
-    push(mat4.clone(nMatrix))
-    mat4.rotate(vMatrix, vMatrix, angle.y, axis.x)
+    mat4.mul(vMatrix, vMatrix, mMatrix)
     mat4.mul(mvpMatrix, pMatrix, vMatrix)
-    mat4.rotate(mMatrix, mMatrix, angle.y, axis.x)
     mat4.invert(nMatrix, mMatrix)
     mat4.transpose(nMatrix, nMatrix)
     draw()
-    nMatrix = pop()
-    mMatrix = pop()
-    mvpMatrix = pop()
     vMatrix = pop()
+    mouse.x = e.pageX
     mouse.y = e.pageY
 })
 
