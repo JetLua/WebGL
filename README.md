@@ -7,6 +7,7 @@
   - [渐变三角形](https://jetlua.github.io/WebGL/chapter_1/gradient_triangle/)
   - [纹理](https://jetlua.github.io/WebGL/chapter_1/texture/)
   - [圆](https://jetlua.github.io/WebGL/chapter_1/circle/)
+  - [波动效果](https://jetlua.github.io/WebGL/chapter_1/wave-texture/)
 
 #### 第二章（三维世界）
   - [立方体](https://jetlua.github.io/WebGL/chapter_2/cube/)
