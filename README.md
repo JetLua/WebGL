@@ -1,20 +1,20 @@
 ### DEMO
 ---
 #### 第一章（基础操作）
-  - [点](https://jetlua.github.io/WebGL/chapter_1/point/)
-  - [移动的点](https://jetlua.github.io/WebGL/chapter_1/moving_point/)
-  - [三角形](https://jetlua.github.io/WebGL/chapter_1/triangle/)
-  - [渐变三角形](https://jetlua.github.io/WebGL/chapter_1/gradient_triangle/)
-  - [纹理](https://jetlua.github.io/WebGL/chapter_1/texture/)
-  - [圆](https://jetlua.github.io/WebGL/chapter_1/circle/)
-  - [波动效果](https://jetlua.github.io/WebGL/chapter_1/wave-texture/)
+  - [点](https://jetlua.github.io/WebGL/chapter-1/point/)
+  - [移动的点](https://jetlua.github.io/WebGL/chapter-1/moving-point/)
+  - [三角形](https://jetlua.github.io/WebGL/chapter-1/triangle/)
+  - [渐变三角形](https://jetlua.github.io/WebGL/chapter-1/gradient-triangle/)
+  - [纹理](https://jetlua.github.io/WebGL/chapter-1/texture/)
+  - [圆](https://jetlua.github.io/WebGL/chapter-1/circle/)
+  - [波动效果](https://jetlua.github.io/WebGL/chapter-1/wave-texture/)
 
 #### 第二章（三维世界）
-  - [立方体](https://jetlua.github.io/WebGL/chapter_2/cube/)
-  - [两个立方体](https://jetlua.github.io/WebGL/chapter_2/multi_objects/)
-  - [可观察的立方体（鼠标滚轮和键盘↑↓←→）](https://jetlua.github.io/WebGL/chapter_2/view_cube/)
+  - [立方体](https://jetlua.github.io/WebGL/chapter-2/cube/)
+  - [两个立方体](https://jetlua.github.io/WebGL/chapter-2/multi-objects/)
+  - [可观察的立方体（鼠标滚轮和键盘↑↓←→）](https://jetlua.github.io/WebGL/chapter-2/view-cube/)
 
 #### 第三章（光）
-  - [光照下的立方体（平行光）](https://jetlua.github.io/WebGL/chapter_3/lighted_cube/)
-  - [光照下的球体（点光源）](https://jetlua.github.io/WebGL/chapter_3/point_lighted_sphere/)
-  - [光照下的球体（鼠标操作）](https://jetlua.github.io/WebGL/chapter_3/point_lighted_sphere_animation/)
+  - [光照下的立方体（平行光）](https://jetlua.github.io/WebGL/chapter-3/lighted-cube/)
+  - [光照下的球体（点光源）](https://jetlua.github.io/WebGL/chapter-3/point-lighted-sphere/)
+  - [光照下的球体（鼠标操作）](https://jetlua.github.io/WebGL/chapter-3/point-lighted-sphere-animation/)
