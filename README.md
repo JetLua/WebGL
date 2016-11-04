@@ -24,4 +24,4 @@
   - [光照下的球体（鼠标操作）](https://jetlua.github.io/WebGL/chapter-3/point-lighted-sphere-animation/)
 
 #### 第四章（three.js）
-  - [蘑菇](https://jetlua.github.io/WebGL/chapter-4/mashroom/)
+  - [蘑菇](https://jetlua.github.io/WebGL/chapter-4/mushroom/)
