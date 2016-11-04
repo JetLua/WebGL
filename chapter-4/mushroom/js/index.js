@@ -33,31 +33,65 @@ window.onload = () => {
 
         scene.add(spotLight)
     }
-    addSpotLight(0xffffff, [0, 100, 100])
+    addSpotLight(0xffffff, [0, 20, 20])
 
     const loader = () => {
-        const
-            jsonLoader = new THREE.JSONLoader(),
-            textureLoader = new THREE.TextureLoader()
+        return new Promise(resolve => {
+            const
+                jsonLoader = new THREE.JSONLoader(),
+                textureLoader = new THREE.TextureLoader()
 
-        textureLoader.load('js/mushroom.png', texture => {
-            jsonLoader.load('js/mushroom.json', (geometry, materials) => {
-                materials[0].setValues({
-                    map: texture
+            textureLoader.load('js/mushroom.png', texture => {
+                jsonLoader.load('js/mushroom.json', (geometry, materials) => {
+                    materials[0].setValues({
+                        map: texture
+                    })
+
+                    const
+                        material = new THREE.MultiMaterial(materials),
+                        mushroom = new THREE.Mesh(geometry, material)
+
+                    mushroom.position.y = -2.5
+                    mushroom.position.z = -6
+                    scene.add(mushroom)
+                    renderer.render(scene, camera)
+                    resolve(mushroom)
                 })
-
-                const
-                    material = new THREE.MultiMaterial(materials),
-                    mushroom = new THREE.Mesh(geometry, material)
-
-                mushroom.position.y = -3
-                mushroom.position.z = -6
-                scene.add(mushroom)
-                renderer.render(scene, camera)
             })
         })
     }
-    loader()
+    loader().then(mushroom => drag(mushroom))
 
+    const drag = mushroom => {
+        let
+            down = false
 
+        const
+            start = {}
+
+        document.body.addEventListener('mousedown', event => {
+            start.x = event.pageX
+            start.y = event.pageY
+            down = true
+        })
+
+        document.body.addEventListener('mouseup', () => down = false)
+
+        document.body.addEventListener('mousemove', event => {
+            if (!down) return
+            const
+                deltaX = event.pageX - start.x,
+                deltaY = event.pageY - start.y
+
+            if (deltaX > 0) mushroom.rotation.y += .05
+            if (deltaX < 0) mushroom.rotation.y -= .05
+            if (deltaY > 0) mushroom.rotation.x += .05
+            if (deltaY < 0) mushroom.rotation.x -= .05
+
+            renderer.render(scene, camera)
+
+            start.x = event.pageX
+            start.y = event.pageY
+        })
+    }
 }
