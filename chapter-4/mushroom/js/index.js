@@ -42,7 +42,7 @@ window.onload = () => {
                 textureLoader = new THREE.TextureLoader()
 
             textureLoader.load('js/mushroom.png', texture => {
-                jsonLoader.load('js/mushroom.json', (geometry, materials) => {
+                jsonLoader.load('js/mushroom.json?13', (geometry, materials) => {
                     materials[0].setValues({
                         map: texture
                     })
@@ -51,7 +51,6 @@ window.onload = () => {
                         material = new THREE.MultiMaterial(materials),
                         mushroom = new THREE.Mesh(geometry, material)
 
-                    mushroom.position.y = -2.5
                     mushroom.position.z = -6
                     scene.add(mushroom)
                     renderer.render(scene, camera)
