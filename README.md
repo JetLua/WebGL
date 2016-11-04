@@ -1,5 +1,9 @@
 ### DEMO
 ---
+
+> 请确保你的浏览器可以较好的支持`ES6`的特性，否则可能影响体验。
+
+---
 #### 第一章（基础操作）
   - [点](https://jetlua.github.io/WebGL/chapter-1/point/)
   - [移动的点](https://jetlua.github.io/WebGL/chapter-1/moving-point/)
@@ -18,3 +22,6 @@
   - [光照下的立方体（平行光）](https://jetlua.github.io/WebGL/chapter-3/lighted-cube/)
   - [光照下的球体（点光源）](https://jetlua.github.io/WebGL/chapter-3/point-lighted-sphere/)
   - [光照下的球体（鼠标操作）](https://jetlua.github.io/WebGL/chapter-3/point-lighted-sphere-animation/)
+
+#### 第四章（three.js）
+  - [蘑菇](https://jetlua.github.io/WebGL/chapter-4/mashroom/)
