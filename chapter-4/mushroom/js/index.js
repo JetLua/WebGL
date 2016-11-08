@@ -18,11 +18,13 @@ window.onload = () => {
     renderer.setClearColor(0xffffff)
     renderer.clear()
 
+    let spotLight
     const addSpotLight = (color, pos) => {
-        var spotLight = new THREE.SpotLight(color)
+        spotLight = new THREE.SpotLight(color)
         spotLight.position.set(...pos)
 
         spotLight.castShadow = true
+
 
         spotLight.shadow.mapSize.width = 1024
         spotLight.shadow.mapSize.height = 1024
@@ -33,7 +35,11 @@ window.onload = () => {
 
         scene.add(spotLight)
     }
-    addSpotLight(0xffffff, [0, 20, 20])
+
+    addSpotLight(0xffffff, [0, 120, 20])
+    // const light = new THREE.PointLight( 0xffffff, 1, 1000);
+    // light.position.set(0, 50, 50 );
+    // scene.add( light );
 
     const loader = () => {
         return new Promise(resolve => {
@@ -51,7 +57,9 @@ window.onload = () => {
                         material = new THREE.MultiMaterial(materials),
                         mushroom = new THREE.Mesh(geometry, material)
 
+                    mushroom.position.y = 0
                     mushroom.position.z = -6
+
                     scene.add(mushroom)
                     renderer.render(scene, camera)
                     resolve(mushroom)
@@ -61,12 +69,14 @@ window.onload = () => {
     }
     loader().then(mushroom => drag(mushroom))
 
+
     const drag = mushroom => {
         let
             down = false
 
         const
-            start = {}
+            start = {},
+            delta = {}
 
         document.body.addEventListener('mousedown', event => {
             start.x = event.pageX
@@ -75,17 +85,17 @@ window.onload = () => {
         })
 
         document.body.addEventListener('mouseup', () => down = false)
-
+        const q = new THREE.Quaternion()
         document.body.addEventListener('mousemove', event => {
             if (!down) return
-            const
-                deltaX = event.pageX - start.x,
-                deltaY = event.pageY - start.y
 
-            if (deltaX > 0) mushroom.rotation.y += .05
-            if (deltaX < 0) mushroom.rotation.y -= .05
-            if (deltaY > 0) mushroom.rotation.x += .05
-            if (deltaY < 0) mushroom.rotation.x -= .05
+            delta.x = event.pageX - start.x
+            delta.y = event.pageY - start.y
+
+            if (delta.x > 0) mushroom.rotation.y += .05
+            if (delta.x < 0) mushroom.rotation.y -= .05
+            if (delta.y > 0) mushroom.rotation.x += .05
+            if (delta.y < 0) mushroom.rotation.x -= .05
 
             renderer.render(scene, camera)
 
