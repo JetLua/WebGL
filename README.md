@@ -25,3 +25,8 @@
 
 #### 第四章（three.js）
   - [蘑菇](https://jetlua.github.io/WebGL/chapter-4/mushroom/)
+  - 中止...
+
+#### 第五章（模型载入）
+  - [蘑菇（原生WebGL）](https://jetlua.github.io/WebGL/chapter-5/mushroom/)
+
