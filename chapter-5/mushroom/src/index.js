@@ -54,6 +54,7 @@ load([
     // 顶点坐标
     const vertices = new Float32Array(mushroom.meshes[0].positions)
     const indices = new Uint8Array(mushroom.meshes[0].indices)
+
     // 绑定缓冲区对象
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
 
@@ -136,7 +137,11 @@ load([
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         // 绘制点
         gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_BYTE, 0)
+
+        requestAnimationFrame(draw)
     }
+
+    draw()
 
     // 鼠标操作
     const axis = {
@@ -154,13 +159,14 @@ load([
 
     let down = false
 
-    const degToRad = degrees => degrees * Math.PI / 1600
+    const degToRad = degrees => degrees * Math.PI / 1000
+    const rMatrix = mat4.create()
 
     canvas.addEventListener('mousemove', e => {
         if (!down) return
         mouse.deltaX = e.pageX - mouse.x
         mouse.deltaY = e.pageY - mouse.y
-        const rMatrix = mat4.create()
+
         mat4.identity(rMatrix)
         mat4.rotate(rMatrix, rMatrix, degToRad(mouse.deltaX), axis.y)
         mat4.rotate(rMatrix, rMatrix, degToRad(mouse.deltaY), axis.x)
@@ -168,7 +174,6 @@ load([
         push(mat4.clone(vMatrix))
         mat4.mul(vMatrix, vMatrix, mMatrix)
         mat4.mul(mvpMatrix, pMatrix, vMatrix)
-        draw()
         vMatrix = pop()
         mouse.x = e.pageX
         mouse.y = e.pageY
