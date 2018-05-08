@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "outDir": "./dist/",
+        "noImplicitAny": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "esnext",
+        "jsx": "react",
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true
+    },
+
+    "exclude": [
+        "node_modules"
+    ]
+}

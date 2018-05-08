@@ -1,0 +1,33 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "custom.d.ts",
+  "scripts": {
+    "deploy": "sh deploy.sh",
+    "build": "webpack -p",
+    "dev": "webpack-dev-server --host 0.0.0.0",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/gl-matrix": "^2.4.0",
+    "bootstrap": "^4.1.1",
+    "css-loader": "^0.28.11",
+    "gl-matrix": "^2.5.1",
+    "html-webpack-plugin": "^3.2.0",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.21.0",
+    "ts-loader": "^4.3.0",
+    "typescript": "^2.8.3",
+    "url-loader": "^1.0.1",
+    "vue": "^2.5.16",
+    "webpack": "^4.8.0",
+    "webpack-cli": "^2.0.15",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
