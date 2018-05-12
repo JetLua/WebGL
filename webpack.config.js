@@ -5,7 +5,7 @@ const
 
 const isProd = process.env.NODE_ENV === 'production' ? true : false
 
-module.exports = {
+const option = {
     entry: [
         'bootstrap/dist/css/bootstrap.min.css',
         './src/ui/index.less',
@@ -77,15 +77,17 @@ module.exports = {
         //     {from: 'static/textures', to: 'static/textures'}
         // ]) : null,
 
-        new webpack.NamedModulesPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.DefinePlugin({
-            ver: JSON.stringify(process.env.NODE_ENV || 'dev'),
-            stamp: JSON.stringify(Date.now()),
-                'CANVAS_RENDERER': JSON.stringify(true),
-                'WEBGL_RENDERER': JSON.stringify(true)
-        })
+
     ],
 
     mode: isProd ? 'production' : 'development'
 }
+
+if (!isProd) {
+    option.plugins.push(
+        new webpack.NamedModulesPlugin(),
+        new webpack.HotModuleReplacementPlugin()
+    )
+}
+
+module.exports = option

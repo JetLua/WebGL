@@ -1,8 +1,8 @@
 import {hex2rgb} from './utils'
 
-let gl:WebGLRenderingContext
+let gl: WebGLRenderingContext
 
-function compile(vs:string, fs:string) : WebGLProgram {
+function compile(vs: string, fs: string): WebGLProgram {
     const
         shader = {
             vert: gl.createShader(gl.VERTEX_SHADER),
@@ -20,11 +20,14 @@ function compile(vs:string, fs:string) : WebGLProgram {
     gl.attachShader(program, shader.vert)
     gl.attachShader(program, shader.frag)
 
+    gl.linkProgram(program)
+    gl.useProgram(program)
+
     return program
 }
 
 
-function clear(color:number, alpha=1.0) {
+function clear(color: number, alpha = 1.0) {
     const rgb = hex2rgb(color)
     gl.clearColor(rgb[0], rgb[1], rgb[2], alpha)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -41,25 +44,25 @@ function init() {
     gl.viewport(0, 0, canvas.offsetWidth, canvas.offsetHeight)
 }
 
-function createBuffer(target:GLenum, data:any, usage=gl.STATIC_DRAW) : WebGLBuffer {
+function createBuffer(target: GLenum, data: any, usage = gl.STATIC_DRAW): WebGLBuffer {
     const buffer = gl.createBuffer()
     gl.bindBuffer(target, buffer)
     gl.bufferData(target, data, usage)
     return buffer
 }
 
-function deleteBuffer(buffer:WebGLBuffer) {
+function deleteBuffer(buffer: WebGLBuffer) {
     gl.deleteBuffer(buffer)
 }
 
-function vertexAttrib(program:WebGLProgram, name:string, size:number,
-    type:GLenum, normalized:GLboolean, stride:number, offset:number) {
+function vertexAttribPointer(program: WebGLProgram, name: string, size: number,
+    type: GLenum, normalized: GLboolean, stride: number, offset: number) {
     const addr = gl.getAttribLocation(program, name)
     gl.vertexAttribPointer(addr, size, type, normalized, stride, offset)
     gl.enableVertexAttribArray(addr)
 }
 
-function createTexture(img:any) {
+function createTexture(img: any) {
     const texture = gl.createTexture()
 
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
@@ -69,8 +72,8 @@ function createTexture(img:any) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
 }
 
-function uniformMatrix4fv(program:WebGLProgram, name:string,
-    val:ArrayLike<number>, transpose=false) {
+function uniformMatrix4fv(program: WebGLProgram, name: string,
+    val: ArrayLike<number>, transpose = false) {
     gl.uniformMatrix4fv(
         gl.getUniformLocation(program, name),
         transpose,
@@ -78,14 +81,36 @@ function uniformMatrix4fv(program:WebGLProgram, name:string,
     )
 }
 
+function uniform2f(program: WebGLProgram, name: string, x: number, y: number) {
+    gl.uniform2f(
+        gl.getUniformLocation(program, name),
+        x, y
+    )
+}
+
+function uniformMatrix3fv(program: WebGLProgram, name: string, matrix: any, transpose=false) {
+    gl.uniformMatrix3fv(
+        gl.getUniformLocation(program, name),
+        transpose,
+        matrix
+    )
+}
+
+function bufferSubData(target: number, offset: number, data: any) {
+    gl.bufferSubData(target, offset, data)
+}
+
 export {
-    gl,
+    bufferSubData,
+    createTexture,
+    createBuffer,
     compile,
     clear,
-    init,
-    createBuffer,
     deleteBuffer,
-    vertexAttrib,
-    createTexture,
-    uniformMatrix4fv
+    gl,
+    init,
+    uniformMatrix4fv,
+    uniform2f,
+    uniformMatrix3fv,
+    vertexAttribPointer,
 }
